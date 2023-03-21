@@ -1,8 +1,8 @@
-import { asyncRouterHandle } from "@/utils/asyncRouter";
-import { emitter } from "@/utils/bus.js";
-import { asyncMenu } from "@/api/menu";
-import { defineStore } from "pinia";
-import { ref } from "vue";
+import { asyncRouterHandle } from '@/utils/asyncRouter';
+import { emitter } from '@/utils/bus.js';
+import { asyncMenu } from '@/api/menu';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
 
 const routerListArr = [];
 const notLayoutRouterArr = [];
@@ -14,7 +14,7 @@ const formatRouter = (routes, routeMap) => {
     routes.forEach((item) => {
       if (
         (!item.children || item.children.every((ch) => ch.hidden)) &&
-        item.name !== "404" &&
+        item.name !== '404' &&
         !item.hidden
       ) {
         routerListArr.push({ label: item.meta.title, value: item.name });
@@ -55,7 +55,7 @@ const KeepAliveFilter = (routes) => {
     });
 };
 
-export const useRouterStore = defineStore("router", () => {
+export const useRouterStore = defineStore('router', () => {
   const keepAliveRouters = ref([]);
   const asyncRouterFlag = ref(0);
   const setKeepAliveRouters = (history) => {
@@ -67,7 +67,7 @@ export const useRouterStore = defineStore("router", () => {
     });
     keepAliveRouters.value = Array.from(new Set(keepArrTemp));
   };
-  emitter.on("setKeepAlive", setKeepAliveRouters);
+  emitter.on('setKeepAlive', setKeepAliveRouters);
 
   const asyncRouters = ref([]);
   const routerList = ref(routerListArr);
@@ -77,11 +77,11 @@ export const useRouterStore = defineStore("router", () => {
     asyncRouterFlag.value++;
     const baseRouter = [
       {
-        path: "/layout",
-        name: "layout",
-        component: "view/layout/index.vue",
+        path: '/layout',
+        name: 'layout',
+        component: 'view/layout/index.vue',
         meta: {
-          title: "底层layout",
+          title: '底层layout',
         },
         children: [],
       },
@@ -91,24 +91,24 @@ export const useRouterStore = defineStore("router", () => {
     asyncRouter &&
       asyncRouter.push(
         {
-          path: "404",
-          name: "404",
+          path: '404',
+          name: '404',
           hidden: true,
           meta: {
-            title: "迷路了*。*",
+            title: '迷路了*。*',
             closeTab: true,
           },
-          component: "view/error/index.vue",
+          component: 'view/error/index.vue',
         },
         {
-          path: "reload",
-          name: "Reload",
+          path: 'reload',
+          name: 'Reload',
           hidden: true,
           meta: {
-            title: "",
+            title: '',
             closeTab: true,
           },
-          component: "view/error/reload.vue",
+          component: 'view/error/reload.vue',
         }
       );
     formatRouter(asyncRouter, routeMap);
@@ -117,8 +117,8 @@ export const useRouterStore = defineStore("router", () => {
       baseRouter.push(...notLayoutRouterArr);
     }
     baseRouter.push({
-      path: "/:catchAll(.*)",
-      redirect: "/layout/404",
+      path: '/:catchAll(.*)',
+      redirect: '/layout/404',
     });
     asyncRouterHandle(baseRouter);
     KeepAliveFilter(asyncRouter);

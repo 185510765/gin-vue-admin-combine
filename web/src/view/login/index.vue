@@ -65,6 +65,7 @@
               type="primary"
               size="large"
               style="width: 46%; margin-left: 8%"
+              :loading="loading"
               @click="submitForm"
             >
               登 录
@@ -113,22 +114,25 @@
   import { ElMessage } from 'element-plus';
   import { useRouter } from 'vue-router';
   import { useUserStore } from '@/pinia/modules/user';
+  import { checkUserName, checkPwd } from '@/utils/rule';
+
   const router = useRouter();
-  // 验证函数
-  const checkUsername = (rule, value, callback) => {
-    if (value.length < 5) {
-      return callback(new Error('请输入正确的用户名'));
-    } else {
-      callback();
-    }
-  };
-  const checkPassword = (rule, value, callback) => {
-    if (value.length < 6) {
-      return callback(new Error('请输入正确的密码'));
-    } else {
-      callback();
-    }
-  };
+
+  // // 验证函数
+  // const checkUsername = (rule, value, callback) => {
+  //   if (value.length < 5) {
+  //     return callback(new Error('请输入正确的用户名'));
+  //   } else {
+  //     callback();
+  //   }
+  // };
+  // const checkPassword = (rule, value, callback) => {
+  //   if (value.length < 6) {
+  //     return callback(new Error('请输入正确的密码'));
+  //   } else {
+  //     callback();
+  //   }
+  // };
 
   // 获取验证码
   const loginVerify = async () => {
@@ -149,6 +153,7 @@
   // 登录相关操作
   const loginForm = ref(null);
   const picPath = ref('');
+  const loading = ref(false);
   const loginFormData = reactive({
     username: 'admin',
     password: '123456',
@@ -157,8 +162,8 @@
     openCaptcha: false,
   });
   const rules = reactive({
-    username: [{ validator: checkUsername, trigger: 'blur' }],
-    password: [{ validator: checkPassword, trigger: 'blur' }],
+    username: [{ validator: checkUserName, trigger: 'blur' }],
+    password: [{ validator: checkPwd, trigger: 'blur' }],
     captcha: [
       {
         message: '验证码格式不正确',
@@ -172,21 +177,32 @@
     return await userStore.LoginIn(loginFormData);
   };
   const submitForm = () => {
-    loginForm.value.validate(async (v) => {
-      if (v) {
-        const flag = await login();
-        if (!flag) {
-          loginVerify();
-        }
-      } else {
-        ElMessage({
-          type: 'error',
-          message: '请正确填写登录信息',
-          showClose: true,
-        });
-        loginVerify();
+    loginForm.value.validate(async (valid) => {
+      if (!valid) {
         return false;
       }
+
+      loading.value = true;
+      const flag = await login();
+      loading.value = false;
+      if (!flag) {
+        loginVerify();
+      }
+
+      // if (valid) {
+      //   const flag = await login();
+      //   if (!flag) {
+      //     loginVerify();
+      //   }
+      // } else {
+      //   ElMessage({
+      //     type: 'error',
+      //     message: '请正确填写登录信息',
+      //     showClose: true,
+      //   });
+      //   loginVerify();
+      //   return false;
+      // }
     });
   };
 
